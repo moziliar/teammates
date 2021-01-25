@@ -19,16 +19,17 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   @Input()
   model: ResponseTimeSeriesChartModel = {
-    durationMinutes: 60,
-    intervalMinutes: 1,
+    durationMinutes: 1440,
+    intervalSeconds: 10,
   };
 
-  interval: BehaviorSubject<number> = new BehaviorSubject<number>(1);
+  runInterval: BehaviorSubject<number> = new BehaviorSubject<number>(this.model.intervalSeconds);
 
   constructor(private feedbackResponseStatsService: FeedbackResponseStatsService) { }
 
   ngOnInit(): void {
-    this.interval.pipe(
+    this.refresh();
+    this.runInterval.pipe(
         switchMap((value: number) => interval(value * 1000)),
         tap(() => this.refresh()),
     ).subscribe();
@@ -36,11 +37,13 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   refresh(): void {
     const durationSeconds: number = this.model.durationMinutes * 60;
-    const intervalSeconds: number = this.model.intervalMinutes * 60;
-    this.feedbackResponseStatsService.loadResponseStats(durationSeconds.toString(), intervalSeconds.toString())
+    this.feedbackResponseStatsService.loadResponseStats(durationSeconds.toString(),
+        this.model.intervalSeconds.toString())
         .subscribe((records: FeedbackResponseRecords) => {
+          console.log(records);
           this.drawChart(records.responseRecords, durationSeconds * 1000);
-        }, (resp: ErrorMessageOutput) => {
+        }, (err: ErrorMessageOutput) => {
+          console.log(err.error);
         });
   }
 
@@ -55,8 +58,8 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
    * Handles a change in interval
    */
   setIntervalHandler(newInterval: number): void {
-    this.model.intervalMinutes = newInterval;
-    this.interval.next(newInterval);
+    this.model.intervalSeconds = newInterval;
+    this.runInterval.next(newInterval);
   }
 
   drawChart(data: FeedbackResponseRecord[], duration: number): void {

@@ -8,8 +8,8 @@
             <option *ngFor="let duration of [1, 5, 10, 15, 30, 60]" [ngValue]="duration">{{ duration + ' min'}}</option>
         </select>
         <label>Interval:</label>
-        <select class="form-control" [ngModel]="model.intervalMinutes" (ngModelChange)="setIntervalHandler($event)">
-            <option *ngFor="let interval of [1, 5, 10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' min'}}</option>
+        <select class="form-control" [ngModel]="model.intervalSeconds" (ngModelChange)="setIntervalHandler($event)">
+            <option *ngFor="let interval of [10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' sec'}}</option>
         </select>
     </div>
 </div>
