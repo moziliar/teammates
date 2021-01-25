@@ -19,7 +19,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   @Input()
   model: ResponseTimeSeriesChartModel = {
-    durationMinutes: 1440,
+    durationMinutes: 180,
     intervalSeconds: 10,
   };
 
