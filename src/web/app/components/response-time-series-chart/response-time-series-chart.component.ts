@@ -35,10 +35,11 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
   }
 
   refresh(): void {
-    this.feedbackResponseStatsService.loadResponseStats(this.model.durationMinutes.toString(),
-        this.model.intervalMinutes.toString())
+    const durationSeconds: number = this.model.durationMinutes * 60;
+    const intervalSeconds: number = this.model.intervalMinutes * 60;
+    this.feedbackResponseStatsService.loadResponseStats(durationSeconds.toString(), intervalSeconds.toString())
         .subscribe((records: FeedbackResponseRecords) => {
-          this.drawChart(records.responseRecords, this.model.durationMinutes * 60 * 1000);
+          this.drawChart(records.responseRecords, durationSeconds * 1000);
         }, (resp: ErrorMessageOutput) => {
         });
   }
