@@ -1,5 +1,7 @@
 package teammates.ui.webapi;
 
+import teammates.common.exception.EntityAlreadyExistsException;
+import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Logger;
 
 /**
@@ -13,8 +15,8 @@ public class RecordResponseCountAction extends AdminOnlyAction {
     ActionResult execute() {
         try {
             logic.createFeedbackResponseRecord(
-                    logic.getTotalFeedBackResponseCount(), (int) (System.currentTimeMillis() / 1000));
-        } catch (Exception e) {
+                    logic.getTotalFeedBackResponseCount(), System.currentTimeMillis());
+        } catch (InvalidParametersException | EntityAlreadyExistsException e) {
             log.warning("record feedback response failed " + e.getMessage());
 
             return new JsonResult("Failed");

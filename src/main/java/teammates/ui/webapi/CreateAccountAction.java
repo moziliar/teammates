@@ -101,7 +101,7 @@ class CreateAccountAction extends AdminOnlyAction {
         }
 
         int count = numResponses;
-        int timestamp = (int) (System.currentTimeMillis() / 1000);
+        long timestamp = System.currentTimeMillis();
 
         for (int i = 0; i < numIntervals; i++) {
             try {
