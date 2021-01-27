@@ -34,12 +34,12 @@ public class FeedbackResponseRecordAttributes extends EntityAttributes<FeedbackR
         // TODO: error handling for cases where length of keyParts < 2 and the try catch
         String[] keyParts = Strings.split(record.getKey(), '-');
 
-        int count;
-        int timestamp;
+        long count;
+        long timestamp;
 
         try {
-            timestamp = Integer.parseInt(keyParts[0]);
-            count = Integer.parseInt(keyParts[1]);
+            timestamp = Long.parseLong(keyParts[0]);
+            count = Long.parseLong(keyParts[1]);
         } catch (NumberFormatException e) {
             log.warning("key '" + record.getKey() + "' corrupted");
 
