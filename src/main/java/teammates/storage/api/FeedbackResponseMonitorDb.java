@@ -45,7 +45,7 @@ public class FeedbackResponseMonitorDb extends EntitiesDb<FeedbackResponseRecord
      * Gets a set of response records with chosen duration and interval.
      */
     public List<FeedbackResponseRecordAttributes> getResponseRecords(long duration, long interval) {
-        long startTimeInMilisec = System.currentTimeMillis() - duration;
+        long startTimeInMillis = System.currentTimeMillis() - duration;
 
         List<Key<FeedbackResponseRecord>> keysOfRecords = load().keys().list();
         List<FeedbackResponseRecord> records = new ArrayList<>();
@@ -54,7 +54,7 @@ public class FeedbackResponseMonitorDb extends EntitiesDb<FeedbackResponseRecord
         for (Key<FeedbackResponseRecord> key : keysOfRecords) {
             String[] tokens = key.getName().split("-");
             long timestamp = Long.parseLong(tokens[0]);
-            if (timestamp < startTimeInMilisec) {
+            if (timestamp < startTimeInMillis) {
                 continue;
             }
 

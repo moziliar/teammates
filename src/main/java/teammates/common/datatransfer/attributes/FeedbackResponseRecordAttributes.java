@@ -65,4 +65,8 @@ public class FeedbackResponseRecordAttributes extends EntityAttributes<FeedbackR
     public long getTimestamp() {
         return this.timestamp;
     }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 }
