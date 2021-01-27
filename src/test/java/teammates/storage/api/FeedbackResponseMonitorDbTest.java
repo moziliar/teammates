@@ -14,13 +14,13 @@ import teammates.test.BaseComponentTestCase;
  */
 public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
     FeedbackResponseMonitorDb db = new FeedbackResponseMonitorDb();
+    final long currentTime = System.currentTimeMillis();
     long[] countTestData = new long[] { 105, 105, 105, 105, 105 };
 
     private void populateTestData() throws EntityAlreadyExistsException, InvalidParametersException {
-        long currentTime = System.currentTimeMillis();
         for (int i = 0; i < countTestData.length; i++) {
-            long timestamp = currentTime - 120 * i;
-            FeedbackResponseRecordAttributes attributes = new FeedbackResponseRecordAttributes(countTestData[i], timestamp);
+            FeedbackResponseRecordAttributes attributes =
+                    new FeedbackResponseRecordAttributes(countTestData[i], currentTime - 120 * i);
             db.createEntity(attributes);
         }
     }
@@ -28,17 +28,20 @@ public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
     @Test
     public void testResponseRecordsInterval() throws EntityAlreadyExistsException, InvalidParametersException {
         long interval = 120;
+
         db.purgeResponseRecords();
         populateTestData();
+
         //get all records with interval 120 milliseconds
         List<FeedbackResponseRecordAttributes> results =
                 db.getResponseRecords(System.currentTimeMillis(), interval);
         long currentTime = -1;
         for (FeedbackResponseRecordAttributes attributes : results) {
             if (currentTime != -1) {
-                //validate interval
-                assertEquals(attributes.getTimestamp() - currentTime, 120);
+                continue;
             }
+            //validate interval
+            assertEquals(attributes.getTimestamp() - currentTime, 120);
             currentTime = attributes.getTimestamp();
         }
     }
@@ -46,13 +49,16 @@ public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
     @Test
     public void testResponseRecordsDuration() throws EntityAlreadyExistsException, InvalidParametersException {
         long duration = 400;
+
         db.purgeResponseRecords();
         populateTestData();
+
         //get all records with interval 240 milliseconds
         List<FeedbackResponseRecordAttributes> results =
                 db.getResponseRecords(duration, 240);
-        if (!results.isEmpty()) {
-            assertTrue(System.currentTimeMillis() - results.get(0).getTimestamp() <= duration);
+        if (results.isEmpty()) {
+            return;
         }
+        assertTrue(currentTime - results.get(0).getTimestamp() <= duration);
     }
 }
