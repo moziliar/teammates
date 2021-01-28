@@ -1,5 +1,7 @@
 package teammates.storage.api;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -15,12 +17,12 @@ import teammates.test.BaseComponentTestCase;
 public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
     FeedbackResponseMonitorDb db = new FeedbackResponseMonitorDb();
     final long currentTime = System.currentTimeMillis();
-    long[] countTestData = new long[] { 105, 105, 105, 105, 105 };
+    List<Long> countTestData = new ArrayList<>(Arrays.asList(105L, 105L, 105L, 105L, 105L));
 
     private void populateTestData() throws EntityAlreadyExistsException, InvalidParametersException {
-        for (int i = 0; i < countTestData.length; i++) {
+        for (int i = 0; i < countTestData.size(); i++) {
             FeedbackResponseRecordAttributes attributes =
-                    new FeedbackResponseRecordAttributes(countTestData[i], currentTime - 120 * i);
+                    new FeedbackResponseRecordAttributes(countTestData.get(i), currentTime - 120 * i);
             db.createEntity(attributes);
         }
     }
@@ -34,7 +36,7 @@ public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
 
         //get all records with interval 120 milliseconds
         List<FeedbackResponseRecordAttributes> results =
-                db.getResponseRecords(System.currentTimeMillis(), interval);
+                db.getResponseRecords(this.currentTime, interval);
         long currentTime = -1;
         for (FeedbackResponseRecordAttributes attributes : results) {
             if (currentTime != -1) {
