@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { BehaviorSubject, interval } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { FeedbackResponseStatsService } from '../../../services/feedback-response-stats.service';
+import { StatusMessageService } from '../../../services/status-message.service';
 import { FeedbackResponseRecord, FeedbackResponseRecords } from '../../../types/api-output';
 import { ErrorMessageOutput } from '../../error-message-output';
 import { ResponseTimeSeriesChartModel } from './response-time-series-chart.model';
@@ -19,13 +20,14 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   @Input()
   model: ResponseTimeSeriesChartModel = {
-    durationMinutes: 180,
+    durationMinutes: 5,
     intervalSeconds: 10,
   };
 
   runInterval: BehaviorSubject<number> = new BehaviorSubject<number>(this.model.intervalSeconds);
 
-  constructor(private feedbackResponseStatsService: FeedbackResponseStatsService) { }
+  constructor(private feedbackResponseStatsService: FeedbackResponseStatsService,
+              private statusMessageService: StatusMessageService) { }
 
   ngOnInit(): void {
     this.refresh();
@@ -40,10 +42,29 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
     this.feedbackResponseStatsService.loadResponseStats(durationSeconds.toString(),
         this.model.intervalSeconds.toString())
         .subscribe((records: FeedbackResponseRecords) => {
-          console.log(records);
-          this.drawChart(records.responseRecords, durationSeconds * 1000);
+          const canvas: any = d3.select('svg');
+
+          // clear all content
+          canvas.selectAll('*').remove();
+
+          this.drawChart(canvas, records.responseRecords, durationSeconds * 1000, false, '#696969');
+
+          const temp: number[] = [];
+          records.responseRecords.forEach((record: FeedbackResponseRecord, i: number) => {
+            temp[i] = record.count;
+
+            if (i <= 0) {
+              record.count = 0;
+            } else {
+              record.count = record.count - temp[i - 1];
+            }
+
+            return record;
+          });
+
+          this.drawChart(canvas, records.responseRecords, durationSeconds * 1000);
         }, (err: ErrorMessageOutput) => {
-          console.log(err.error);
+          this.statusMessageService.showErrorToast(err.error.message);
         });
   }
 
@@ -52,6 +73,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
    */
   setDurationHandler(duration: number): void {
     this.model.durationMinutes = duration;
+    this.refresh();
   }
 
   /**
@@ -62,21 +84,19 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
     this.runInterval.next(newInterval);
   }
 
-  drawChart(data: FeedbackResponseRecord[], duration: number): void {
-    const svg: any = d3.select('svg');
+  drawChart(canvas: any, data: FeedbackResponseRecord[], duration: number,
+            showAxis: boolean = true, color: string = 'steelblue'): void {
+
     const svgWidth: number = 800;
     const svgHeight: number = 400;
     const margin: any = { top: 20, right: 20, bottom: 30, left: 50 };
     const width: number = svgWidth - margin.left - margin.right;
     const height: number = svgHeight - margin.top - margin.bottom;
 
-    // clear all content
-    svg.selectAll('*').remove();
+    canvas.attr('width', svgWidth);
+    canvas.attr('height', svgHeight);
 
-    svg.attr('width', svgWidth);
-    svg.attr('height', svgHeight);
-
-    const container: any = svg.append('g')
+    const container: any = canvas.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x: any = d3.scaleTime()
@@ -94,24 +114,25 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
         .x((r: FeedbackResponseRecord) => x(r.timestamp))
         .y((r: FeedbackResponseRecord) => y(r.count));
 
-    container.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+    if (showAxis) {
+      container.append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x));
+      container.append('g')
+          .call(d3.axisLeft(y))
+          .append('text')
+          .attr('fill', '#000')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', 6)
+          .attr('dy', '0.71em')
+          .attr('text-anchor', 'end')
+          .text('No. of responses');
 
-    container.append('g')
-        .call(d3.axisLeft(y))
-        .append('text')
-        .attr('fill', '#000')
-        .attr('transform', 'rotate(-90)')
-        .attr('y', 6)
-        .attr('dy', '0.71em')
-        .attr('text-anchor', 'end')
-        .text('No. of responses');
-
+    }
     container.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
+        .attr('stroke', color)
         .attr('stroke-linejoin', 'round')
         .attr('stroke-linecap', 'round')
         .attr('stroke-width', 1.5)

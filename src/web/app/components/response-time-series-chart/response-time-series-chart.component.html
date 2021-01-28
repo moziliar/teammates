@@ -5,11 +5,11 @@
     <div>
         <label>Duration:</label>
         <select class="form-control" [ngModel]="model.durationMinutes" (ngModelChange)="setDurationHandler($event)">
-            <option *ngFor="let duration of [1, 5, 10, 15, 30, 60]" [ngValue]="duration">{{ duration + ' min'}}</option>
+            <option *ngFor="let duration of [5, 10, 15, 30, 60]" [ngValue]="duration">{{ 'Past ' + duration + ' mins'}}</option>
         </select>
         <label>Interval:</label>
         <select class="form-control" [ngModel]="model.intervalSeconds" (ngModelChange)="setIntervalHandler($event)">
-            <option *ngFor="let interval of [10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' sec'}}</option>
+            <option *ngFor="let interval of [10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' secs'}}</option>
         </select>
     </div>
 </div>
