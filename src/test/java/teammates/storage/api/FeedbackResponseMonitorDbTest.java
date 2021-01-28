@@ -1,6 +1,5 @@
 package teammates.storage.api;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,13 +16,12 @@ import teammates.test.BaseComponentTestCase;
 public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
     FeedbackResponseMonitorDb db = new FeedbackResponseMonitorDb();
     final long currentTime = System.currentTimeMillis();
-    List<Long> countTestData = new ArrayList<>(Arrays.asList(105L, 105L, 105L, 105L, 105L));
+    List<Long> countTestData = Arrays.asList(105L, 105L, 105L, 105L, 105L);
 
     private void populateTestData() throws EntityAlreadyExistsException, InvalidParametersException {
         for (int i = 0; i < countTestData.size(); i++) {
-            FeedbackResponseRecordAttributes attributes =
-                    new FeedbackResponseRecordAttributes(countTestData.get(i), currentTime - 120 * i);
-            db.createEntity(attributes);
+            long timestamp = currentTime - 120 * i;
+            db.createEntity(new FeedbackResponseRecordAttributes(countTestData.get(i), timestamp));
         }
     }
 
@@ -36,15 +34,14 @@ public class FeedbackResponseMonitorDbTest extends BaseComponentTestCase {
 
         //get all records with interval 120 milliseconds
         List<FeedbackResponseRecordAttributes> results =
-                db.getResponseRecords(this.currentTime, interval);
-        long currentTime = -1;
+                db.getResponseRecords(currentTime, interval);
+        long localCurrentTime = -1;
         for (FeedbackResponseRecordAttributes attributes : results) {
-            if (currentTime != -1) {
-                continue;
+            if (localCurrentTime != -1) {
+                //validate interval
+                assertEquals(attributes.getTimestamp() - localCurrentTime, 120);
             }
-            //validate interval
-            assertEquals(attributes.getTimestamp() - currentTime, 120);
-            currentTime = attributes.getTimestamp();
+            localCurrentTime = attributes.getTimestamp();
         }
     }
 

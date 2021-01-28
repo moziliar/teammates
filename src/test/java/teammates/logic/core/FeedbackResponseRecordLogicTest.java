@@ -17,7 +17,8 @@ public class FeedbackResponseRecordLogicTest extends BaseLogicTest {
     @Test
     public void testPurgerResponseRecords() {
         feedbackResponseRecordLogic.purgeFeedbackResponseRecord();
-        assertEquals(feedbackResponseRecordLogic.getFeedbackResponseRecords(System.currentTimeMillis(),
-                1).size(), 0);
+        assertEquals(
+                feedbackResponseRecordLogic.getFeedbackResponseRecords(System.currentTimeMillis(), 1).size(),
+                0);
     }
 }
