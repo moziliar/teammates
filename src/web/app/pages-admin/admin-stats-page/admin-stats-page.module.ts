@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminStatsPageComponent } from "./admin-stats-page.component";
 import { RouterModule, Routes } from "@angular/router";
+import { ResponseTimeSeriesChartModule } from "../../components/response-time-series-chart/response-time-series-chart.module";
 
 const routes: Routes = [
   {
@@ -23,6 +24,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
+    ResponseTimeSeriesChartModule,
   ],
 })
 export class AdminStatsPageModule { }
