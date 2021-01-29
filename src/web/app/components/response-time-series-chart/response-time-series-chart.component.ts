@@ -45,7 +45,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
         .subscribe((records: FeedbackResponseRecords) => {
           this.model.responseRecords = records.responseRecords;
 
-          const canvas = d3.select('svg');
+          const canvas: any = d3.select('svg');
 
           // clear all content
           canvas.selectAll('*').remove();
@@ -129,7 +129,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
           .attr('y', 6)
           .attr('dy', '0.71em')
           .attr('text-anchor', 'middle')
-          .attr('transform', `translate(0, -30)`)
+          .attr('transform', 'translate(0, -30)')
           .text(`No. of responses / ${this.model.intervalSeconds}s`);
     } else {
       container.append('g')
@@ -139,7 +139,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
           .attr('transform', `translate(${width}, 0)`)
           .append('text')
           .attr('fill', '#000')
-          .attr('transform', `translate(0, -30)`)
+          .attr('transform', 'translate(0, -30)')
           .attr('y', 6)
           .attr('dy', '0.71em')
           .attr('text-anchor', 'middle')
