@@ -2,7 +2,7 @@
     <div class="line-chart">
         <svg></svg>
     </div>
-    <div>
+    <div class="line-chart-controls">
         <label>Duration:</label>
         <select class="form-control" [ngModel]="model.durationMinutes" (ngModelChange)="setDurationHandler($event)">
             <option *ngFor="let duration of [5, 30, 60]" [ngValue]="duration">{{ 'Past ' + duration + ' mins'}}</option>
