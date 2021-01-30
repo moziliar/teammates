@@ -36,6 +36,10 @@ export class AdminPageComponent implements OnInit {
       url: '/web/admin/timezone',
       display: 'Timezone Listing',
     },
+    {
+      url: '/web/admin/stats',
+      display: 'Statistics',
+    },
   ];
   isFetchingAuthDetails: boolean = false;
 

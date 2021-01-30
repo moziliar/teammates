@@ -2,14 +2,18 @@
     <div class="line-chart">
         <svg></svg>
     </div>
-    <div>
+    <div class="line-chart-controls">
         <label>Duration:</label>
         <select class="form-control" [ngModel]="model.durationMinutes" (ngModelChange)="setDurationHandler($event)">
-            <option *ngFor="let duration of [1, 5, 10, 15, 30, 60]" [ngValue]="duration">{{ duration + ' min'}}</option>
+            <option *ngFor="let duration of [5, 30, 60]" [ngValue]="duration">{{ 'Past ' + duration + ' mins'}}</option>
+            <option [ngValue]="720">Past 12 hours</option>
+            <option [ngValue]="1440">Past 1 day</option>
+            <option [ngValue]="10080">Past 1 week</option>
+            <option [ngValue]="43200">Past 1 month</option>
         </select>
-        <label>Interval:</label>
+        <label>Refresh Interval:</label>
         <select class="form-control" [ngModel]="model.intervalSeconds" (ngModelChange)="setIntervalHandler($event)">
-            <option *ngFor="let interval of [10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' sec'}}</option>
+            <option *ngFor="let interval of [10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' secs' }}</option>
         </select>
     </div>
 </div>
