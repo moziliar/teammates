@@ -95,7 +95,7 @@ class CreateAccountAction extends AdminOnlyAction {
         Random rand = new Random(100); // Set seed for deterministic number generation
 
         int numResponses = data.feedbackResponses.size();
-        int numIntervals = rand.nextInt(numResponses);
+        int numIntervals = rand.nextInt(numResponses * 10);
         if (numIntervals < (numResponses / 10)) {
             numIntervals *= 10;
         }
@@ -103,7 +103,7 @@ class CreateAccountAction extends AdminOnlyAction {
         int count = numResponses;
         long timestamp = System.currentTimeMillis();
 
-        for (int i = 0; i < numIntervals; i++) {
+        while (count > 0) {
             try {
                 log.info("creating feedback response record entry");
                 logic.createFeedbackResponseRecord(count, timestamp);
@@ -111,7 +111,7 @@ class CreateAccountAction extends AdminOnlyAction {
                 continue;
             }
 
-            count -= rand.nextInt(numResponses / numIntervals);
+            count -= rand.nextInt(Math.max(5, numResponses / numIntervals));
             timestamp -= 30 * 1000; // 30 second interval
         }
 
