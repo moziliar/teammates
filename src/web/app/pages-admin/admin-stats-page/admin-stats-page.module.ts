@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminStatsPageComponent } from "./admin-stats-page.component";
-import { RouterModule, Routes } from "@angular/router";
-import { ResponseTimeSeriesChartModule } from "../../components/response-time-series-chart/response-time-series-chart.module";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { ResponseTimeSeriesChartModule } from '../../components/response-time-series-chart/response-time-series-chart.module';
+import { AdminStatsPageComponent } from './admin-stats-page.component';
 
 const routes: Routes = [
   {

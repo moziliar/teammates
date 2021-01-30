@@ -112,7 +112,7 @@ class CreateAccountAction extends AdminOnlyAction {
             }
 
             count -= rand.nextInt(numResponses / numIntervals);
-            timestamp -= (30 * 1000); // 30 second interval
+            timestamp -= 30 * 1000; // 30 second interval
         }
 
         return courseId;

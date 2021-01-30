@@ -38,7 +38,7 @@ export class AdminPageComponent implements OnInit {
     },
     {
       url: '/web/admin/stats',
-      display: 'Statistics'
+      display: 'Statistics',
     },
   ];
   isFetchingAuthDetails: boolean = false;

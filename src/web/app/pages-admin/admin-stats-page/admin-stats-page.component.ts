@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
+/**
+ * Admin statistics page.
+ */
 @Component({
   selector: 'tm-admin-stats-page',
   templateUrl: './admin-stats-page.component.html',
