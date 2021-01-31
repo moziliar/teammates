@@ -7,6 +7,14 @@ import { StatusMessageService } from '../../../services/status-message.service';
 import { FeedbackResponseRecord, FeedbackResponseRecords } from '../../../types/api-output';
 import { ErrorMessageOutput } from '../../error-message-output';
 import { ResponseTimeSeriesChartModel } from './response-time-series-chart.model';
+import { GraphDisplayMode } from "../../../types/graph-display-mode";
+
+interface Margin {
+  top: number,
+  right: number,
+  bottom: number,
+  left: number,
+}
 
 /**
  * Response-tracking time series chart for admin user.
@@ -21,11 +29,24 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
   @Input()
   model: ResponseTimeSeriesChartModel = {
     durationMinutes: 5,
-    intervalSeconds: 10,
-    responseRecords: [],
+    responseIntervalMinutes: 1,
+    refreshIntervalSeconds: 10,
+    cumulativeResponseRecords: [],
+    differenceResponseRecords: [],
   };
 
-  runInterval: BehaviorSubject<number> = new BehaviorSubject<number>(this.model.intervalSeconds);
+  runInterval: BehaviorSubject<number> = new BehaviorSubject<number>(this.model.refreshIntervalSeconds);
+  GraphDisplayMode: typeof GraphDisplayMode = GraphDisplayMode;
+
+  displayMode: GraphDisplayMode = GraphDisplayMode.SHOW_BOTH;
+
+  canvasWidth: number = 800;
+  canvasHeight: number = 400;
+
+  margin: Margin = { top: 40, right: 60, bottom: 30, left: 60 };
+
+  graphWidth: number = this.canvasWidth - this.margin.left - this.margin.right;
+  graphHeight: number = this.canvasHeight - this.margin.top - this.margin.bottom;
 
   constructor(private feedbackResponseStatsService: FeedbackResponseStatsService,
               private statusMessageService: StatusMessageService) { }
@@ -40,32 +61,31 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   refresh(): void {
     const durationMilliSeconds: number = this.model.durationMinutes * 60 * 1000;
+    const responseIntervalMilliSeconds: number = this.model.responseIntervalMinutes * 60 * 1000;
     this.feedbackResponseStatsService.loadResponseStats(durationMilliSeconds.toString(),
-        this.model.intervalSeconds.toString())
+        responseIntervalMilliSeconds.toString())
         .subscribe((records: FeedbackResponseRecords) => {
-          this.model.responseRecords = records.responseRecords;
-
-          const canvas: any = d3.select('svg');
-
-          // clear all content
-          canvas.selectAll('*').remove();
-
-          this.drawChart(canvas, durationMilliSeconds, false);
+          this.model.cumulativeResponseRecords = records.responseRecords;
+          this.model.differenceResponseRecords = []
 
           const totalCounts: number[] = [];
-          records.responseRecords.map((record: FeedbackResponseRecord, i: number) => {
+
+          for (const [i, record] of records.responseRecords.entries()) {
             totalCounts[i] = record.count;
 
-            if (i <= 0) {
-              record.count = 0;
-            } else {
-              record.count = record.count - totalCounts[i - 1];
+            const differenceRecord: FeedbackResponseRecord = {
+              count: 0,
+              timestamp: record.timestamp
             }
 
-            return record;
-          });
+            if (i > 0) {
+              differenceRecord.count = record.count - totalCounts[i - 1];
+            }
 
-          this.drawChart(canvas, durationMilliSeconds);
+            this.model.differenceResponseRecords.push(differenceRecord);
+          }
+
+          this.drawChart();
         }, (err: ErrorMessageOutput) => {
           this.statusMessageService.showErrorToast(err.error.message);
         });
@@ -80,81 +100,129 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
   }
 
   /**
-   * Handles a change in interval
+   * Handles a change in the response interval
    */
-  setIntervalHandler(newInterval: number): void {
-    this.model.intervalSeconds = newInterval;
-    this.runInterval.next(newInterval);
+  setResponseIntervalHandler(newInterval: number): void {
+    this.model.responseIntervalMinutes = newInterval;
     this.refresh();
   }
 
-  drawChart(canvas: any, duration: number, isForeground: boolean = true): void {
-    const svgWidth: number = 800;
-    const svgHeight: number = 400;
-    const margin: any = { top: 40, right: 60, bottom: 30, left: 60 };
-    const width: number = svgWidth - margin.left - margin.right;
-    const height: number = svgHeight - margin.top - margin.bottom;
+  /**
+   * Handles a change in the refresh interval
+   */
+  setRefreshIntervalHandler(newInterval: number): void {
+    this.model.refreshIntervalSeconds = newInterval;
+    this.runInterval.next(newInterval);
+  }
 
-    canvas.attr('width', svgWidth);
-    canvas.attr('height', svgHeight);
+  isSelectedForDisplay(mode: GraphDisplayMode): boolean {
+    return mode === this.displayMode;
+  }
+
+  switchDisplayMode(mode: GraphDisplayMode): void {
+    this.displayMode = mode;
+    this.refresh();
+  }
+
+  drawChart(): void {
+    const canvas: any = d3.select('svg');
+    const duration: number = this.model.durationMinutes * 60 * 1000;
+
+    // clear all content
+    canvas.selectAll('*').remove();
+
+    canvas.attr('width', this.canvasWidth);
+    canvas.attr('height', this.canvasHeight);
 
     const container: any = canvas.append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+        .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
     const x: any = d3.scaleTime()
-        .rangeRound([0, width])
+        .rangeRound([0, this.graphWidth])
         .nice();
 
-    const y: any = d3.scaleLinear()
-        .rangeRound([height, 0]);
+    const y0: any = d3.scaleLinear()
+        .rangeRound([this.graphHeight, 0]);
+    const y1: any = d3.scaleLinear()
+        .rangeRound([this.graphHeight, 0]);
 
     x.domain([Date.now() - duration, Date.now()]);
-    y.domain(d3.extent(this.model.responseRecords, (r: FeedbackResponseRecord) => r.count));
 
-    const line: any = d3.line()
+    y0.domain(d3.extent(this.model.cumulativeResponseRecords, (r: FeedbackResponseRecord) => r.count));
+    y1.domain(d3.extent(this.model.differenceResponseRecords, (r: FeedbackResponseRecord) => r.count));
+
+    const lineCumulativeAttributes: any = d3.line()
         .defined((r: FeedbackResponseRecord) => r.timestamp >= Date.now() - duration && r.timestamp <= Date.now())
         .x((r: FeedbackResponseRecord) => x(r.timestamp))
-        .y((r: FeedbackResponseRecord) => y(r.count));
+        .y((r: FeedbackResponseRecord) => y0(r.count));
 
-    if (isForeground) {
-      container.append('g')
-          .attr('transform', `translate(0, ${height})`)
-          .call(d3.axisBottom(x));
-      container.append('g')
-          .call(d3.axisLeft(y))
-          .attr('stroke', 'steelblue')
-          .attr('stroke-width', '0.05em')
-          .append('text')
-          .attr('fill', 'steelblue')
-          .attr('y', 6)
-          .attr('dy', '0.71em')
-          .attr('text-anchor', 'middle')
-          .attr('transform', 'translate(0, -30)')
-          .text(`No. of responses / ${this.model.intervalSeconds}s`);
-    } else {
-      container.append('g')
-          .call(d3.axisRight(y))
-          .attr('stroke', '#cdcdcd')
-          .attr('stroke-width', '0.04em')
-          .attr('transform', `translate(${width}, 0)`)
-          .append('text')
-          .attr('fill', '#000')
-          .attr('transform', 'translate(0, -30)')
-          .attr('y', 6)
-          .attr('dy', '0.71em')
-          .attr('text-anchor', 'middle')
-          .text('Total no. of responses');
+    const lineDifferenceAttributes: any = d3.line()
+        .defined((r: FeedbackResponseRecord) => r.timestamp >= Date.now() - duration && r.timestamp <= Date.now())
+        .x((r: FeedbackResponseRecord) => x(r.timestamp))
+        .y((r: FeedbackResponseRecord) => y1(r.count));
+
+    container.append('g')
+        .attr('transform', `translate(0, ${this.graphHeight})`)
+        .call(d3.axisBottom(x));
+
+    const differenceAxisLabel: string = `No. of responses / ${this.model.responseIntervalMinutes}min`;
+    const cumulativeAxisLabel = 'Total no. of responses';
+
+    switch (this.displayMode) {
+      case GraphDisplayMode.SHOW_BOTH:
+        this.drawLeftYAxis(container, y0, cumulativeAxisLabel);
+        this.drawRightYAxis(container, y1, differenceAxisLabel);
+        this.drawLine(container, this.model.differenceResponseRecords, lineDifferenceAttributes, '#cdcdcd');
+        this.drawLine(container, this.model.cumulativeResponseRecords, lineCumulativeAttributes, 'steelblue');
+        break;
+
+      case GraphDisplayMode.SHOW_DIFFERENCE:
+        this.drawLeftYAxis(container, y0, differenceAxisLabel);
+        this.drawLine(container, this.model.differenceResponseRecords, lineDifferenceAttributes, 'steelblue');
+        break;
+
+      case GraphDisplayMode.SHOW_CUMULATIVE:
+        this.drawLeftYAxis(container, y0, cumulativeAxisLabel);
+        this.drawLine(container, this.model.cumulativeResponseRecords, lineCumulativeAttributes, 'steelblue');
+        break;
     }
+  }
 
-    const color: string = isForeground ? 'steelblue' : '#cdcdcd';
+  drawLeftYAxis(container: any, axis: any, label: string): void {
+    container.append('g')
+        .call(d3.axisLeft(axis))
+        .attr('stroke', 'steelblue')
+        .append('text')
+        .attr('fill', 'steelblue')
+        .attr('y', 6)
+        .attr('dy', '0.71em')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'translate(0, -30)')
+        .text(label);
+  }
 
+  drawRightYAxis(container: any, axis: any, label: string): void {
+    container.append('g')
+        .call(d3.axisRight(axis))
+        .attr('stroke', '#cdcdcd')
+        .attr('transform', `translate(${this.graphWidth}, 0)`)
+        .append('text')
+        .attr('fill', '#cdcdcd')
+        .attr('transform', 'translate(0, -30)')
+        .attr('y', 6)
+        .attr('dy', '0.71em')
+        .attr('text-anchor', 'middle')
+        .text(label);
+  }
+
+  drawLine(container: any, data: FeedbackResponseRecord[], lineAttributes:any, color: string): void {
     container.append('path')
-        .datum(this.model.responseRecords)
+        .datum(data)
         .attr('fill', 'none')
         .attr('stroke', color)
         .attr('stroke-linejoin', 'round')
         .attr('stroke-linecap', 'round')
         .attr('stroke-width', 2)
-        .attr('d', line);
+        .attr('d', lineAttributes);
   }
 }

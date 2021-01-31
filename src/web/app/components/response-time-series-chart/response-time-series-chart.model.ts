@@ -8,6 +8,8 @@ import { FeedbackResponseRecord } from '../../../types/api-output';
  */
 export interface ResponseTimeSeriesChartModel {
   durationMinutes: number;
-  intervalSeconds: number;
-  responseRecords: FeedbackResponseRecord[];
+  responseIntervalMinutes: number;
+  refreshIntervalSeconds: number;
+  cumulativeResponseRecords: FeedbackResponseRecord[];
+  differenceResponseRecords: FeedbackResponseRecord[];
 }
