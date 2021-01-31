@@ -5,15 +5,15 @@ import { switchMap, tap } from 'rxjs/operators';
 import { FeedbackResponseStatsService } from '../../../services/feedback-response-stats.service';
 import { StatusMessageService } from '../../../services/status-message.service';
 import { FeedbackResponseRecord, FeedbackResponseRecords } from '../../../types/api-output';
+import { GraphDisplayMode } from '../../../types/graph-display-mode';
 import { ErrorMessageOutput } from '../../error-message-output';
 import { ResponseTimeSeriesChartModel } from './response-time-series-chart.model';
-import { GraphDisplayMode } from "../../../types/graph-display-mode";
 
 interface Margin {
-  top: number,
-  right: number,
-  bottom: number,
-  left: number,
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
 }
 
 /**
@@ -66,7 +66,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
         responseIntervalMilliSeconds.toString())
         .subscribe((records: FeedbackResponseRecords) => {
           this.model.cumulativeResponseRecords = records.responseRecords;
-          this.model.differenceResponseRecords = []
+          this.model.differenceResponseRecords = [];
 
           const totalCounts: number[] = [];
 
@@ -75,8 +75,8 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
             const differenceRecord: FeedbackResponseRecord = {
               count: 0,
-              timestamp: record.timestamp
-            }
+              timestamp: record.timestamp,
+            };
 
             if (i > 0) {
               differenceRecord.count = record.count - totalCounts[i - 1];
@@ -152,12 +152,10 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
     y1.domain(d3.extent(this.model.differenceResponseRecords, (r: FeedbackResponseRecord) => r.count));
 
     const lineCumulativeAttributes: any = d3.line()
-        .defined((r: FeedbackResponseRecord) => r.timestamp >= Date.now() - duration && r.timestamp <= Date.now())
         .x((r: FeedbackResponseRecord) => x(r.timestamp))
         .y((r: FeedbackResponseRecord) => y0(r.count));
 
     const lineDifferenceAttributes: any = d3.line()
-        .defined((r: FeedbackResponseRecord) => r.timestamp >= Date.now() - duration && r.timestamp <= Date.now())
         .x((r: FeedbackResponseRecord) => x(r.timestamp))
         .y((r: FeedbackResponseRecord) => y1(r.count));
 
@@ -166,14 +164,14 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
         .call(d3.axisBottom(x));
 
     const differenceAxisLabel: string = `No. of responses / ${this.model.responseIntervalMinutes}min`;
-    const cumulativeAxisLabel = 'Total no. of responses';
+    const cumulativeAxisLabel: string = 'Total no. of responses';
 
     switch (this.displayMode) {
       case GraphDisplayMode.SHOW_BOTH:
-        this.drawLeftYAxis(container, y0, cumulativeAxisLabel);
-        this.drawRightYAxis(container, y1, differenceAxisLabel);
-        this.drawLine(container, this.model.differenceResponseRecords, lineDifferenceAttributes, '#cdcdcd');
-        this.drawLine(container, this.model.cumulativeResponseRecords, lineCumulativeAttributes, 'steelblue');
+        this.drawLeftYAxis(container, y0, differenceAxisLabel);
+        this.drawRightYAxis(container, y1, cumulativeAxisLabel);
+        this.drawLine(container, this.model.cumulativeResponseRecords, lineCumulativeAttributes, '#cdcdcd');
+        this.drawLine(container, this.model.differenceResponseRecords, lineDifferenceAttributes, 'steelblue');
         break;
 
       case GraphDisplayMode.SHOW_DIFFERENCE:
@@ -185,6 +183,9 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
         this.drawLeftYAxis(container, y0, cumulativeAxisLabel);
         this.drawLine(container, this.model.cumulativeResponseRecords, lineCumulativeAttributes, 'steelblue');
         break;
+
+      default:
+        // display none
     }
   }
 
@@ -215,7 +216,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
         .text(label);
   }
 
-  drawLine(container: any, data: FeedbackResponseRecord[], lineAttributes:any, color: string): void {
+  drawLine(container: any, data: FeedbackResponseRecord[], lineAttributes: any, color: string): void {
     container.append('path')
         .datum(data)
         .attr('fill', 'none')
