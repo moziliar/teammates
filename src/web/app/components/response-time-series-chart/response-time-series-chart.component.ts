@@ -168,14 +168,14 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
     switch (this.displayMode) {
       case GraphDisplayMode.SHOW_BOTH:
-        this.drawLeftYAxis(container, y0, differenceAxisLabel);
-        this.drawRightYAxis(container, y1, cumulativeAxisLabel);
+        this.drawLeftYAxis(container, y1, differenceAxisLabel);
+        this.drawRightYAxis(container, y0, cumulativeAxisLabel);
         this.drawLine(container, this.model.cumulativeResponseRecords, lineCumulativeAttributes, '#cdcdcd');
         this.drawLine(container, this.model.differenceResponseRecords, lineDifferenceAttributes, 'steelblue');
         break;
 
       case GraphDisplayMode.SHOW_DIFFERENCE:
-        this.drawLeftYAxis(container, y0, differenceAxisLabel);
+        this.drawLeftYAxis(container, y1, differenceAxisLabel);
         this.drawLine(container, this.model.differenceResponseRecords, lineDifferenceAttributes, 'steelblue');
         break;
 
