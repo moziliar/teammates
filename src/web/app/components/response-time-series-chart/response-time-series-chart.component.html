@@ -21,9 +21,5 @@
         <select class="form-control" [ngModel]="model.responseIntervalMinutes" (ngModelChange)="setResponseIntervalHandler($event)">
             <option *ngFor="let interval of [1, 5, 10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' minutes' }}</option>
         </select>
-        <label>Refresh Interval:</label>
-        <select class="form-control" [ngModel]="model.refreshIntervalSeconds" (ngModelChange)="setRefreshIntervalHandler($event)">
-            <option *ngFor="let interval of [1, 10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' secs' }}</option>
-        </select>
     </div>
 </div>

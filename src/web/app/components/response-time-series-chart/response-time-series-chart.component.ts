@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import { BehaviorSubject, interval } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { interval } from 'rxjs';
 import { FeedbackResponseStatsService } from '../../../services/feedback-response-stats.service';
 import { StatusMessageService } from '../../../services/status-message.service';
 import { FeedbackResponseRecord, FeedbackResponseRecords } from '../../../types/api-output';
@@ -30,12 +29,10 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
   model: ResponseTimeSeriesChartModel = {
     durationMinutes: 5,
     responseIntervalMinutes: 1,
-    refreshIntervalSeconds: 10,
     cumulativeResponseRecords: [],
     differenceResponseRecords: [],
   };
 
-  runInterval: BehaviorSubject<number> = new BehaviorSubject<number>(this.model.refreshIntervalSeconds);
   GraphDisplayMode: typeof GraphDisplayMode = GraphDisplayMode;
 
   displayMode: GraphDisplayMode = GraphDisplayMode.SHOW_BOTH;
@@ -53,10 +50,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
-    this.runInterval.pipe(
-        switchMap((value: number) => interval(value * 1000)),
-        tap(() => this.refresh()),
-    ).subscribe();
+    interval(1000).subscribe(() => this.refresh());
   }
 
   refresh(): void {
@@ -105,14 +99,6 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
   setResponseIntervalHandler(newInterval: number): void {
     this.model.responseIntervalMinutes = newInterval;
     this.refresh();
-  }
-
-  /**
-   * Handles a change in the refresh interval
-   */
-  setRefreshIntervalHandler(newInterval: number): void {
-    this.model.refreshIntervalSeconds = newInterval;
-    this.runInterval.next(newInterval);
   }
 
   isSelectedForDisplay(mode: GraphDisplayMode): boolean {
