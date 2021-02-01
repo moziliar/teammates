@@ -50,7 +50,7 @@ export class ResponseTimeSeriesChartComponent implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
-    interval(1000).subscribe(() => this.refresh());
+    interval(10 * 1000).subscribe(() => this.refresh());
   }
 
   refresh(): void {
