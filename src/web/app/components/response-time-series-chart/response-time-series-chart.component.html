@@ -1,0 +1,25 @@
+<div class="card bg-light top-padded">
+    <div class="line-chart">
+        <svg></svg>
+    </div>
+    <div class="line-chart-controls">
+        <strong class="d-inline"> Display Mode: </strong>
+        <div class="btn-group" data-toggle="buttons">
+            <button class="btn btn-light" [disabled]="isSelectedForDisplay(GraphDisplayMode.SHOW_CUMULATIVE)" (click)="switchDisplayMode(GraphDisplayMode.SHOW_CUMULATIVE)">Cumulative</button>
+            <button class="btn btn-light" [disabled]="isSelectedForDisplay(GraphDisplayMode.SHOW_DIFFERENCE)" (click)="switchDisplayMode(GraphDisplayMode.SHOW_DIFFERENCE)">Difference</button>
+            <button class="btn btn-light" [disabled]="isSelectedForDisplay(GraphDisplayMode.SHOW_BOTH)" (click)="switchDisplayMode(GraphDisplayMode.SHOW_BOTH)">Both</button>
+        </div>
+        <label>Duration:</label>
+        <select class="form-control" [ngModel]="model.durationMinutes" (ngModelChange)="setDurationHandler($event)">
+            <option *ngFor="let duration of [5, 30, 60]" [ngValue]="duration">{{ 'Past ' + duration + ' mins'}}</option>
+            <option [ngValue]="720">Past 12 hours</option>
+            <option [ngValue]="1440">Past 1 day</option>
+            <option [ngValue]="10080">Past 1 week</option>
+            <option [ngValue]="43200">Past 1 month</option>
+        </select>
+        <label>Response Interval:</label>
+        <select class="form-control" [ngModel]="model.responseIntervalMinutes" (ngModelChange)="setResponseIntervalHandler($event)">
+            <option *ngFor="let interval of [1, 5, 10, 15, 30, 60]" [ngValue]="interval">{{ interval + ' minutes' }}</option>
+        </select>
+    </div>
+</div>

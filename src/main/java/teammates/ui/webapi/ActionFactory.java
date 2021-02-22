@@ -82,6 +82,9 @@ public class ActionFactory {
         map(ResourceURIs.SEARCH_STUDENTS, GET, SearchStudentsAction.class);
         map(ResourceURIs.EMAIL, GET, GenerateEmailAction.class);
 
+        //RESPONSE STATS APIs
+        map(ResourceURIs.RESPONSE_STATS, GET, GetResponseStatsAction.class);
+
         map(ResourceURIs.SESSIONS_ONGOING, GET, GetOngoingSessionsAction.class);
         map(ResourceURIs.SESSION_STATS, GET, GetSessionResponseStatsAction.class);
         map(ResourceURIs.SESSION, GET, GetFeedbackSessionAction.class);
@@ -127,6 +130,7 @@ public class ActionFactory {
         map(CronJobURIs.AUTOMATED_FEEDBACK_CLOSED_REMINDERS, GET, FeedbackSessionClosedRemindersAction.class);
         map(CronJobURIs.AUTOMATED_FEEDBACK_CLOSING_REMINDERS, GET, FeedbackSessionClosingRemindersAction.class);
         map(CronJobURIs.AUTOMATED_FEEDBACK_PUBLISHED_REMINDERS, GET, FeedbackSessionPublishedRemindersAction.class);
+        map(CronJobURIs.AUTOMATED_RECORD_TOTAL_FEEDBACK_RESPONSE_COUNT, GET, RecordResponseCountAction.class);
 
         // Task queue workers; use POST request
         // Reference: https://cloud.google.com/appengine/docs/standard/java/taskqueue/

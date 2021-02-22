@@ -145,6 +145,9 @@ public final class Const {
         public static final String ENTITY_TYPE = "entitytype";
 
         public static final String INTENT = "intent";
+
+        public static final String DURATION = "duration";
+        public static final String INTERVAL = "interval";
     }
 
     public static class SearchIndex {
@@ -283,6 +286,7 @@ public final class Const {
         public static final String QUESTION = URI_PREFIX + "/question";
         public static final String QUESTION_RECIPIENTS = URI_PREFIX + "/question/recipients";
         public static final String RESPONSES = URI_PREFIX + "/responses";
+        public static final String RESPONSE_STATS = URI_PREFIX + "/response-stats";
         public static final String HAS_RESPONSES = URI_PREFIX + "/hasResponses";
         public static final String JOIN = URI_PREFIX + "/join";
         public static final String JOIN_REMIND = URI_PREFIX + "/join/remind";
@@ -310,6 +314,9 @@ public final class Const {
                 URI_PREFIX + "/feedbackSessionClosingReminders";
         public static final String AUTOMATED_FEEDBACK_PUBLISHED_REMINDERS =
                 URI_PREFIX + "/feedbackSessionPublishedReminders";
+        public static final String AUTOMATED_RECORD_TOTAL_FEEDBACK_RESPONSE_COUNT =
+                URI_PREFIX + "/recordTotalFeedbackResponseCount";
+
     }
 
     /**

@@ -19,6 +19,7 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.FeedbackQuestionAttributes;
 import teammates.common.datatransfer.attributes.FeedbackResponseAttributes;
 import teammates.common.datatransfer.attributes.FeedbackResponseCommentAttributes;
+import teammates.common.datatransfer.attributes.FeedbackResponseRecordAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
@@ -34,6 +35,7 @@ import teammates.logic.core.CoursesLogic;
 import teammates.logic.core.DataBundleLogic;
 import teammates.logic.core.FeedbackQuestionsLogic;
 import teammates.logic.core.FeedbackResponseCommentsLogic;
+import teammates.logic.core.FeedbackResponseRecordLogic;
 import teammates.logic.core.FeedbackResponsesLogic;
 import teammates.logic.core.FeedbackSessionsLogic;
 import teammates.logic.core.InstructorsLogic;
@@ -56,6 +58,8 @@ public class Logic {
     protected static final FeedbackResponsesLogic feedbackResponsesLogic = FeedbackResponsesLogic.inst();
     protected static final FeedbackResponseCommentsLogic feedbackResponseCommentsLogic =
             FeedbackResponseCommentsLogic.inst();
+    protected static final FeedbackResponseRecordLogic feedbackResponseRecordLogic =
+            FeedbackResponseRecordLogic.inst();
     protected static final ProfilesLogic profilesLogic = ProfilesLogic.inst();
     protected static final DataBundleLogic dataBundleLogic = DataBundleLogic.inst();
 
@@ -1177,6 +1181,18 @@ public class Logic {
         return feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
     }
 
+    public int getTotalFeedBackResponseCount() {
+        return feedbackResponsesLogic.getTotalFeedbackResponseCount();
+    }
+
+    public List<FeedbackResponseRecordAttributes> getResponseRecords(long duration, long interval) {
+        return feedbackResponseRecordLogic.getFeedbackResponseRecords(duration, interval);
+    }
+
+    public void purgeFeedbackResponseRecords() {
+        feedbackResponseRecordLogic.purgeFeedbackResponseRecord();
+    }
+
     /**
      * Creates a feedback response.
      *
@@ -1320,6 +1336,14 @@ public class Logic {
      */
     public void deleteFeedbackResponseComment(long commentId) {
         feedbackResponseCommentsLogic.deleteFeedbackResponseComment(commentId);
+    }
+
+    /**
+     * Saves a feedback response record.
+     */
+    public void createFeedbackResponseRecord(long count, long timestamp)
+            throws InvalidParametersException, EntityAlreadyExistsException {
+        feedbackResponseRecordLogic.createFeedbackResponseRecord(count, timestamp);
     }
 
     /**
