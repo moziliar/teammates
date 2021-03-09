@@ -6,15 +6,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import teammates.common.datatransfer.DataBundle;
 import teammates.common.datatransfer.InstructorPrivileges;
-import teammates.common.datatransfer.attributes.*;
+import teammates.common.datatransfer.attributes.AccountAttributes;
+import teammates.common.datatransfer.attributes.CourseAttributes;
+import teammates.common.datatransfer.attributes.FeedbackResponseAttributes;
+import teammates.common.datatransfer.attributes.FeedbackResponseCommentAttributes;
+import teammates.common.datatransfer.attributes.InstructorAttributes;
+import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.datatransfer.questions.FeedbackTextResponseDetails;
 import teammates.common.util.Const;
 import teammates.common.util.JsonUtils;
@@ -23,6 +30,9 @@ import teammates.lnp.util.LNPSpecification;
 import teammates.lnp.util.LNPTestData;
 import teammates.ui.request.StudentsEnrollRequest;
 
+/**
+ * L&P Test Case for cascading batch updating students.
+ */
 public class InstructorStudentCascadingUpdateLNPTest extends BaseLNPTestCase {
     private static final int NUM_INSTRUCTORS = 1;
     private static final int RAMP_UP_PERIOD = NUM_INSTRUCTORS * 2;
@@ -59,7 +69,7 @@ public class InstructorStudentCascadingUpdateLNPTest extends BaseLNPTestCase {
             protected Map<String, CourseAttributes> generateCourses() {
                 Map<String, CourseAttributes> courses = new HashMap<>();
 
-                courses.put(COURSE_ID , CourseAttributes.builder(COURSE_ID)
+                courses.put(COURSE_ID, CourseAttributes.builder(COURSE_ID)
                         .withName(COURSE_NAME)
                         .withTimezone(ZoneId.of("UTC"))
                         .build()
